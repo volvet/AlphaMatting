@@ -7,11 +7,27 @@
 //
 
 #include <iostream>
+#include <string>
 
 #include "SharedMatting.h"
 
 int main(int argc, const char * argv[]) {
-    // insert code here...
-    std::cout << "Hello, World!\n";
+    
+    SharedMatting sm;
+    
+    std::string inMap = "../TestSet/input.png";
+    std::string triMap = "../TestSet/trimap.png";
+    std::string resultMap = "../TestSet/resultMap.png";
+    
+    sm.loadImage(inMap.c_str());
+    
+    sm.loadTrimap(triMap.c_str());
+    
+    sm.solveAlpha();
+    
+    sm.save(resultMap.c_str());
+    
+    std::cout << "end" <<std::endl;
+    
     return 0;
 }

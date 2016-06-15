@@ -41,7 +41,7 @@ SharedMatting::~SharedMatting()
 
 
 //载入图像
-void SharedMatting::loadImage(char * filename)
+void SharedMatting::loadImage(const char * filename)
 {
     pImg = imread(filename);
     if (!pImg.data)
@@ -73,7 +73,7 @@ void SharedMatting::loadImage(char * filename)
     matte.create(Size(width, height), CV_8UC1);
 }
 //载入第三方图像
-void SharedMatting::loadTrimap(char * filename)
+void SharedMatting::loadTrimap(const char * filename)
 {
     trimap = imread(filename);
     if (!trimap.data)
@@ -1038,7 +1038,7 @@ void SharedMatting::localSmooth()
     ftuples.clear();
 }
 //存储图像
-void SharedMatting::save(char * filename)
+void SharedMatting::save(const char * filename)
 {
     
     imwrite(filename, matte);

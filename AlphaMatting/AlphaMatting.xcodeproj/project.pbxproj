@@ -24,10 +24,11 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		14EA2FD21D1189630099904C /* AlphaMatting */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = AlphaMatting; sourceTree = BUILT_PRODUCTS_DIR; };
+		14EA2FD21D1189630099904C /* AlphaMatting */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; name = AlphaMatting; path = /Users/volvet/Projects/image/AlphaMatting/AlphaMatting/build/Debug/AlphaMatting; sourceTree = "<absolute>"; };
 		14EA2FD51D1189630099904C /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		14EA2FDC1D11899E0099904C /* SharedMatting.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SharedMatting.h; sourceTree = "<group>"; };
 		14EA2FDD1D118EA50099904C /* SharedMatting.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SharedMatting.cpp; sourceTree = "<group>"; };
+		14EA30131D11B9B80099904C /* en */ = {isa = PBXFileReference; lastKnownFileType = text; name = en; path = en.lproj/AlphaMatting; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -52,7 +53,7 @@
 		14EA2FD31D1189630099904C /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				14EA2FD21D1189630099904C /* AlphaMatting */,
+				14EA30141D11B9B80099904C /* AlphaMatting */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -129,6 +130,17 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		14EA30141D11B9B80099904C /* AlphaMatting */ = {
+			isa = PBXVariantGroup;
+			children = (
+				14EA30131D11B9B80099904C /* en */,
+			);
+			name = AlphaMatting;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
 		14EA2FD71D1189630099904C /* Debug */ = {

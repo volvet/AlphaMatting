@@ -44,15 +44,15 @@ public:
     SharedMatting();
     ~SharedMatting();
     
-    void loadImage(char * filename);
-    void loadTrimap(char * filename);
+    void loadImage(const char * filename);
+    void loadTrimap(const char * filename);
     void expandKnown();
     void sample(cv::Point p, vector<cv::Point>& f, vector<cv::Point>& b);
     void gathering();
     void refineSample();
     void localSmooth();
     void solveAlpha();
-    void save(char * filename);
+    void save(const char * filename);
     void Sample(vector<vector<cv::Point> > &F, vector<vector<cv::Point> > &B);
     void getMatte();
     void release();
