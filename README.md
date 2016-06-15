@@ -2,5 +2,5 @@
 
 
 ## Reference
-*http://opencv.org/
-*https://github.com/np-csu/AlphaMatting
+* http://opencv.org/
+* https://github.com/np-csu/AlphaMatting
