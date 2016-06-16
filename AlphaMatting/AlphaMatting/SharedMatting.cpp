@@ -18,9 +18,6 @@ SharedMatting::SharedMatting()
 //析构函数
 SharedMatting::~SharedMatting()
 {
-    //    cvReleaseImage(&pImg);
-    //    cvReleaseImage(&trimap);
-    //    cvReleaseImage(&matte);
     pImg.release();
     trimap.release();
     matte.release();
@@ -49,15 +46,10 @@ void SharedMatting::loadImage(const char * filename)
         cout << "Loading Image Failed!" << endl;
         exit(-1);
     }
-    //height     = pImg->height;
     height     = pImg.rows;
-    //width      = pImg->width;
     width      = pImg.cols;
-    //step       = pImg->widthStep;
     step       = pImg.step1();
-    //    channels   = pImg->nChannels;
     channels   = pImg.channels();
-    //    data    = (uchar *)pImg->imageData;
     data       = (uchar *)pImg.data;
     unknownIndex  = new int*[height];
     tri           = new int*[height];
@@ -69,7 +61,6 @@ void SharedMatting::loadImage(const char * filename)
         alpha[i]        = new int[width];
     }
     
-    //    matte = cvCreateImage(cvSize(width, height), IPL_DEPTH_8U, 1);
     matte.create(Size(width, height), CV_8UC1);
 }
 //载入第三方图像
@@ -81,9 +72,6 @@ void SharedMatting::loadTrimap(const char * filename)
         cout << "Loading Trimap Failed!" << endl;
         exit(-1);
     }
-    /*cvNamedWindow("aa");
-     cvShowImage("aa", trimap);
-     cvWaitKey(0);*/
 }
 
 void SharedMatting::expandKnown()
@@ -91,8 +79,6 @@ void SharedMatting::expandKnown()
     vector<struct labelPoint> vp;
     int kc2 = kC * kC;
     vp.clear();
-    int s       = trimap.step1();
-    int c       = trimap.channels();
     uchar * d   = (uchar *)trimap.data;
     for (int i = 0; i < height; ++i)
     {

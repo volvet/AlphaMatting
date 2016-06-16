@@ -37,6 +37,9 @@ int compareResult(const char * lResultName, const char * rResultName)
         }
     }
     
+    l.release();
+    r.release();
+    
     return 0;
 }
 
