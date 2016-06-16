@@ -111,50 +111,11 @@ void SharedMatting::expandKnown()
             {
                 
                 int label = -1;
-                double dmin = 10000.0;
                 bool flag = false;
                 int pb = data[i * step + j * channels];
                 int pg = data[i * step + j * channels + 1];
                 int pr = data[i * step + j * channels + 2];
                 Scalar p = Scalar(pb, pg, pr);
-                
-                
-                
-                
-                //int i1    = max(0, i - kI);
-                //int i2    = min(i + kI, height - 1);
-                //int j1    = max(0, j - kI);
-                //int j2    = min(j + kI, width - 1);
-                //
-                //for (int k = i1; k <= i2; ++k)
-                //{
-                //	for (int l = j1; l <= j2; ++l)
-                //	{
-                //		int temp = tri[k][l];
-                //		if (temp != 0 && temp != 255)
-                //		{
-                //			continue;
-                //		}
-                //		double dis = dP(Point(i, j), Point(k, l));
-                //		if (dis > dmin)
-                //		{
-                //			continue;
-                //		}
-                //
-                //		int qb = data[k * step + l * channels];
-                //		int qg = data[k * step + l * channels + 1];
-                //		int qr = data[k * step + l * channels + 2];
-                //		Scalar q = Scalar(qb, qg, qr);
-                
-                //		double distanceColor = distanceColor2(p, q);
-                
-                //		if (distanceColor <= kc2)
-                //		{
-                //			dmin = dis;
-                //			label = temp;
-                //		}
-                //	}
-                //}
                 
                 for (int k = 0; (k <= kI) && !flag; ++k)
                 {
@@ -289,13 +250,9 @@ void SharedMatting::expandKnown()
         int ti = it->x;
         int tj = it->y;
         int label = it->label;
-        //cvSet2D(trimap, ti, tj, ScalarAll(label));
         tri[ti][tj] = label;
     }
     vp.clear();
-    /*cvNamedWindow("trimap");
-     cvShowImage("trimap", trimap);
-     cvWaitKey(0);*/
 }
 
 double SharedMatting::comalpha(Scalar c, Scalar f, Scalar b)
