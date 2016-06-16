@@ -92,7 +92,7 @@ private:
     int ** alpha;
     double kC;
     
-    int step;
+    size_t step;
     int channels;
     uchar* data;
     

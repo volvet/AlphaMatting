@@ -613,8 +613,7 @@ void SharedMatting::gathering()
     Sample(F, B);
     
     int index = 0;
-    double a;
-    int size = uT.size();
+    size_t size = uT.size();
     
     for (int m = 0; m < size; ++m)
     {
@@ -635,7 +634,6 @@ void SharedMatting::gathering()
         Point tb;
         
         bool flag = false;
-        bool first = true;
         
         for (it1 = F[m].begin(); it1 != F[m].end(); ++it1)
         {
@@ -983,7 +981,6 @@ void SharedMatting::localSmooth()
 //存储图像
 void SharedMatting::save(const char * filename)
 {
-    
     imwrite(filename, matte);
 }
 
@@ -991,7 +988,7 @@ void SharedMatting::getMatte()
 {
     int h     = matte.rows;
     int w     = matte.cols;
-    int s     = matte.step1();
+    size_t s     = matte.step1();
     uchar* d  = (uchar *)matte.data;
     for (int i = 0; i < h; ++i)
     {
@@ -1038,9 +1035,5 @@ void SharedMatting::solveAlpha()
     finish = clock();
     cout <<  double(finish - start) / (CLOCKS_PER_SEC * 2.5) << endl;
     
-    //getMatte()
     getMatte();
-    /*cvNamedWindow("matte");
-     cvShowImage("matte", matte);
-     cvWaitKey(0);*/
 }
