@@ -303,7 +303,7 @@ double SharedMatting::nP(int i, int j, Scalar f, Scalar b)
     return result;
 }
 
-double SharedMatting::eP(int i1, int j1, int i2, int j2)
+double SharedMatting::energyOfPath(int i1, int j1, int i2, int j2)
 {
     double ci = i2 - i1;
     double cj = j2 - j1;
@@ -360,21 +360,17 @@ double SharedMatting::probabilityOfForeground(Point p, vector<Point>& f, vector<
 {
     double fmin = 1e10;
     vector<Point>::iterator it;
-    for (it = f.begin(); it != f.end(); ++it)
-    {
-        double fp = eP(p.x, p.y, it->x, it->y);
-        if (fp < fmin)
-        {
+    for (it = f.begin(); it != f.end(); ++it) {
+        double fp = energyOfPath(p.x, p.y, it->x, it->y);
+        if (fp < fmin) {
             fmin = fp;
         }
     }
     
     double bmin = 1e10;
-    for (it = b.begin(); it != b.end(); ++it)
-    {
-        double bp = eP(p.x, p.y, it->x, it->y);
-        if (bp < bmin)
-        {
+    for (it = b.begin(); it != b.end(); ++it) {
+        double bp = energyOfPath(p.x, p.y, it->x, it->y);
+        if (bp < bmin) {
             bmin = bp;
         }
     }
@@ -383,11 +379,7 @@ double SharedMatting::probabilityOfForeground(Point p, vector<Point>& f, vector<
 
 double SharedMatting::aP(int i, int j, double pf, Scalar f, Scalar b)
 {
-    int bc = data[i * step + j * channels];
-    int gc = data[i * step + j * channels + 1];
-    int rc = data[i * step + j * channels + 2];
-    Scalar c = Scalar(bc, gc, rc);
-    
+    Scalar c = LOAD_RGB_SCALAR(data, i*step + j*channels);
     double alpha = comalpha(c, f, b);
     
     return pf + (1 - 2 * pf) * alpha;
@@ -423,16 +415,8 @@ double SharedMatting::gP(Point p, Point fp, Point bp, double pf)
 
 double SharedMatting::gP(Point p, Point fp, Point bp, double dpf, double pf)
 {
-    int bc, gc, rc;
-    bc = data[fp.x * step + fp.y * channels];
-    gc = data[fp.x * step + fp.y * channels + 1];
-    rc = data[fp.x * step + fp.y * channels + 2];
-    Scalar f = Scalar(bc, gc, rc);
-    bc = data[bp.x * step + bp.y * channels];
-    gc = data[bp.x * step + bp.y * channels + 1];
-    rc = data[bp.x * step + bp.y * channels + 2];
-    Scalar b = Scalar(bc, gc, rc);
-    
+    Scalar f = LOAD_RGB_SCALAR(data, fp.x*step + fp.y*channels);
+    Scalar b = LOAD_RGB_SCALAR(data, bp.x*step + bp.y*channels);
     
     double tn = pow(nP(p.x, p.y, f, b), 3);
     double ta = pow(aP(p.x, p.y, pf, f, b), 2);
