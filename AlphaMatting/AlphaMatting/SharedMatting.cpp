@@ -526,15 +526,13 @@ void SharedMatting::sample(std::vector<vector<Point> > &F, std::vector<vector<Po
     B.clear();
     w=pImg.cols;
     h=pImg.rows;
-    for(iter=uT.begin();iter!=uT.end();++iter)
-    {
+    for(iter=uT.begin();iter!=uT.end();++iter) {
         vector<Point> fPts,bPts;
         
         x=iter->x;
         y=iter->y;
         angle=(x+y)*b % a;
-        for(i=0;i<KG;++i)
-        {
+        for(i=0;i<KG;++i) {
             bool f1(false),f2(false);
             
             z=(angle+i*a)/180.0f*3.1415926f;
@@ -543,30 +541,26 @@ void SharedMatting::sample(std::vector<vector<Point> > &F, std::vector<vector<Po
             step=min(1.0f/(abs(ex)+1e-10f),
                      1.0f/(abs(ey)+1e-10f));
             
-            for(t=0;;t+=step)
-            {
+            for(t=0;;t+=step) {
                 p=(int)(x+ex*t+0.5f);
                 q=(int)(y+ey*t+0.5f);
                 if(p<0 || p>=h || q<0 || q>=w)
                     break;
                 
                 gray=m_ppTriData[p][q];
-                if(!f1 && gray<50)
-                {
+                if(!f1 && gray<50) {
                     Point pt = Point(p, q);
                     bPts.push_back(pt);
                     f1=true;
-                }
-                else
-                    if(!f2 && gray>200)
-                    {
+                } else {
+                    if(!f2 && gray>200) {
                         Point pt = Point(p, q);
                         fPts.push_back(pt);
                         f2=true;
+                    } else {
+                        if(f1 && f2) break;
                     }
-                    else
-                        if(f1 && f2)
-                            break;
+                }
             }
         }
         
@@ -583,10 +577,10 @@ void SharedMatting::gathering()
     vector<Point>::iterator it1;
     vector<Point>::iterator it2;
     
-    vector<vector<Point> > F,B;
+    vector<vector<Point> > foregroundSamples,backgroundSamples;
     
     
-    sample(F, B);
+    sample(foregroundSamples, backgroundSamples);
     
     int index = 0;
     size_t size = uT.size();
@@ -596,14 +590,7 @@ void SharedMatting::gathering()
         int i = uT[m].x;
         int j = uT[m].y;
         
-        /*f.clear();
-         b.clear();*/
-        
-        //sample(Point(i, j), f, b);
-        
-        /*double pfp = pfP(Point(i, j), f, b);*/
-        
-        double pfp = pfP(Point(i, j), F[m], B[m]);
+        double pfp = pfP(Point(i, j), foregroundSamples[m], backgroundSamples[m]);
         double gmin = 1.0e10;
         
         Point tf;
@@ -611,10 +598,10 @@ void SharedMatting::gathering()
         
         bool flag = false;
         
-        for (it1 = F[m].begin(); it1 != F[m].end(); ++it1)
+        for (it1 = foregroundSamples[m].begin(); it1 != foregroundSamples[m].end(); ++it1)
         {
             double dpf = pixelDistance(Point(i, j), *(it1));
-            for (it2 = B[m].begin(); it2 < B[m].end(); ++it2)
+            for (it2 = backgroundSamples[m].begin(); it2 < backgroundSamples[m].end(); ++it2)
             {
                 
                 double gp = gP(Point(i, j), *(it1), *(it2), dpf, pfp);
