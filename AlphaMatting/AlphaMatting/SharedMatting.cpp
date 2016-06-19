@@ -267,12 +267,9 @@ double SharedMatting::comalpha(Scalar c, Scalar f, Scalar b)
     return min(1.0, max(0.0, alpha));
 }
 
-double SharedMatting::mP(int i, int j, Scalar f, Scalar b)
+double SharedMatting::chromaticDistortion(int i, int j, Scalar f, Scalar b)
 {
-    int bc = data[i * step + j * channels];
-    int gc = data[i * step + j * channels + 1];
-    int rc = data[i * step + j * channels + 2];
-    Scalar c = Scalar(bc, gc, rc);
+    Scalar c = LOAD_RGB_SCALAR(data, i*step + j*channels);
     
     double alpha = comalpha(c, f, b);
     
@@ -295,8 +292,8 @@ double SharedMatting::nP(int i, int j, Scalar f, Scalar b)
     {
         for (int l = j1; l <= j2; ++l)
         {
-            double m = mP(k, l, f, b);
-            result += m * m;
+            double distortion = chromaticDistortion(k, l, f, b);
+            result += distortion * distortion;
         }
     }
     
@@ -390,14 +387,14 @@ double SharedMatting::pixelDistance(Point s, Point d)
     return sqrt(double((s.x - d.x) * (s.x - d.x) + (s.y - d.y) * (s.y - d.y)));
 }
 
-double SharedMatting::gP(Point p, Point fp, Point bp, double dpf, double pf)
+double SharedMatting::gP(Point p, Point fp, Point bp, double distance, double pf)
 {
     Scalar f = LOAD_RGB_SCALAR(data, fp.x*step + fp.y*channels);
     Scalar b = LOAD_RGB_SCALAR(data, bp.x*step + bp.y*channels);
     
     double tn = pow(nP(p.x, p.y, f, b), 3);
     double ta = pow(aP(p.x, p.y, pf, f, b), 2);
-    double tf = dpf;
+    double tf = distance;
     double tb = pow(pixelDistance(p, bp), 4);
     
     return tn * ta * tf * tb;
@@ -508,7 +505,6 @@ void SharedMatting::gathering()
 {
     vector<Point> f;
     vector<Point> b;
-    vector<Point>::iterator it;
     vector<Point>::iterator it1;
     vector<Point>::iterator it2;
     
@@ -535,11 +531,11 @@ void SharedMatting::gathering()
         
         for (it1 = foregroundSamples[m].begin(); it1 != foregroundSamples[m].end(); ++it1)
         {
-            double dpf = pixelDistance(Point(i, j), *(it1));
+            double distance = pixelDistance(Point(i, j), *(it1));
             for (it2 = backgroundSamples[m].begin(); it2 < backgroundSamples[m].end(); ++it2)
             {
                 
-                double gp = gP(Point(i, j), *(it1), *(it2), dpf, pfp);
+                double gp = gP(Point(i, j), *(it1), *(it2), distance, pfp);
                 if (gp < gmin)
                 {
                     gmin = gp;
@@ -641,7 +637,7 @@ void SharedMatting::refineSample()
                     continue;
                 }
                 
-                double m  = mP(xi, yj, t.f, t.b);
+                double m  = chromaticDistortion(xi, yj, t.f, t.b);
                 
                 if (m > minvalue[2])
                 {
@@ -746,7 +742,7 @@ void SharedMatting::refineSample()
         }
         else
         {
-            ftuples[index].confidence = exp(-10 * mP(xi, yj, tf, tb));
+            ftuples[index].confidence = exp(-10 * chromaticDistortion(xi, yj, tf, tb));
         }
         
         
@@ -861,7 +857,7 @@ void SharedMatting::localSmooth()
         //double tempalpha = comalpha(cp, fp, bp);
         dfb  = wfbsumup / (wfbsundown + 1e-200);
         
-        conp = min(1.0, sqrt(colorDistance2(fp, bp)) / dfb) * exp(-10 * mP(xi, yj, fp, bp));
+        conp = min(1.0, sqrt(colorDistance2(fp, bp)) / dfb) * exp(-10 * chromaticDistortion(xi, yj, fp, bp));
         alp  = wasumup / (wasumdown + 1e-200);
         
         double alpha_t = conp * comalpha(cp, fp, bp) + (1 - conp) * max(0.0, min(alp, 1.0));
