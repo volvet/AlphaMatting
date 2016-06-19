@@ -407,11 +407,8 @@ double SharedMatting::sigma2(Point p)
 {
     int xi = p.x;
     int yj = p.y;
-    int bc, gc, rc;
-    bc = data[xi * step + yj * channels];
-    gc = data[xi * step + yj * channels + 1];
-    rc = data[xi * step + yj * channels + 2];
-    Scalar pc = Scalar(bc, gc, rc);
+    
+    Scalar pc = LOAD_RGB_SCALAR(data, xi*step + yj*channels);
     
     int i1 = max(0, xi - 2);
     int i2 = min(xi + 2, height - 1);
@@ -425,11 +422,7 @@ double SharedMatting::sigma2(Point p)
     {
         for (int j = j1; j <= j2; ++j)
         {
-            int bc, gc, rc;
-            bc = data[i * step + j * channels];
-            gc = data[i * step + j * channels + 1];
-            rc = data[i * step + j * channels + 2];
-            Scalar temp = Scalar(bc, gc, rc);
+            Scalar temp = LOAD_RGB_SCALAR(data, i*step + j*channels);
             result += colorDistance2(pc, temp);
             ++num;
         }
