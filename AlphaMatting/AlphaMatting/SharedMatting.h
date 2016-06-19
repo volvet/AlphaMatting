@@ -69,12 +69,7 @@ public:
     double distanceColor2(cv::Scalar cs1, cv::Scalar cs2);
     double comalpha(cv::Scalar c, cv::Scalar f, cv::Scalar b);
     
-    
-    
 private:
-    //    IplImage * pImg;
-    //    IplImage * trimap;
-    //    IplImage * matte;
     cv::Mat pImg;
     cv::Mat trimap;
     cv::Mat matte;
@@ -85,12 +80,9 @@ private:
     
     int height;
     int width;
-    int kI;
-    int kG;
     int ** unknownIndex;//Unknown的索引信息；
     int ** tri;
     int ** alpha;
-    double kC;
     
     size_t step;
     int channels;

@@ -5,12 +5,15 @@
 
 using namespace cv;
 
+
+#define  KI      10    //  D_IMAGE,  for expansion of known region
+#define  KC      5.0   //  D_COLOR,  for expansion of known region
+#define  KG      4     //  for sample gathering, each unknown p gathers at most kG forground and background samples
+
+
 //构造函数
 SharedMatting::SharedMatting()
 {
-    kI = 10;
-    kC = 5.0;
-    kG = 4;  //each unknown p gathers at most kG forground and background samples
     uT.clear();
     tuples.clear();
     
@@ -63,7 +66,9 @@ void SharedMatting::loadImage(const char * filename)
     
     matte.create(Size(width, height), CV_8UC1);
 }
-//载入第三方图像
+
+
+//  Trimap value: 0 - background, 255 - foreground,  others(128) - unknown.
 void SharedMatting::loadTrimap(const char * filename)
 {
     trimap = imread(filename);
@@ -77,7 +82,7 @@ void SharedMatting::loadTrimap(const char * filename)
 void SharedMatting::expandKnown()
 {
     vector<struct labelPoint> vp;
-    int kc2 = kC * kC;
+    int kc2 = KC * KC;
     vp.clear();
     uchar * d   = (uchar *)trimap.data;
     for (int i = 0; i < height; ++i)
@@ -103,7 +108,7 @@ void SharedMatting::expandKnown()
                 int pr = data[i * step + j * channels + 2];
                 Scalar p = Scalar(pb, pg, pr);
                 
-                for (int k = 0; (k <= kI) && !flag; ++k)
+                for (int k = 0; (k <= KI) && !flag; ++k)
                 {
                     int k1 = max(0, i - k);
                     int k2 = min(i + k, height - 1);
@@ -120,7 +125,7 @@ void SharedMatting::expandKnown()
                         if (gray == 0 || gray == 255)
                         {
                             dis = dP(Point(i, j), Point(l, l1));
-                            if (dis > kI)
+                            if (dis > KI)
                             {
                                 continue;
                             }
@@ -145,7 +150,7 @@ void SharedMatting::expandKnown()
                         if (gray == 0 || gray == 255)
                         {
                             dis = dP(Point(i, j), Point(l, l2));
-                            if (dis > kI)
+                            if (dis > KI)
                             {
                                 continue;
                             }
@@ -172,7 +177,7 @@ void SharedMatting::expandKnown()
                         if (gray == 0 || gray == 255)
                         {
                             dis = dP(Point(i, j), Point(k1, l));
-                            if (dis > kI)
+                            if (dis > KI)
                             {
                                 continue;
                             }
@@ -192,7 +197,7 @@ void SharedMatting::expandKnown()
                         if (gray == 0 || gray == 255)
                         {
                             dis = dP(Point(i, j), Point(k2, l));
-                            if (dis > kI)
+                            if (dis > KI)
                             {
                                 continue;
                             }
@@ -485,11 +490,11 @@ void SharedMatting::sample(Point p, std::vector<Point> &f, std::vector<Point> &b
     int i = p.x;
     int j = p.y;
     
-    double inc   = 360.0 / kG;
+    double inc   = 360.0 / KG;
     //cout << inc << endl;
     double ca    = inc / 9;
     double angle = (i % 3 * 3 + j % 9) * ca;
-    for (int k = 0; k  < kG; ++k)
+    for (int k = 0; k  < KG; ++k)
     {
         bool flagf = false;
         bool flagb = false;
@@ -544,7 +549,7 @@ void SharedMatting::Sample(std::vector<vector<Point> > &F, std::vector<vector<Po
     double z,ex,ey,t,step;
     vector<Point>::iterator iter;
     
-    a=360/kG;
+    a=360/KG;
     b=1.7f*a/9;
     F.clear();
     B.clear();
@@ -557,7 +562,7 @@ void SharedMatting::Sample(std::vector<vector<Point> > &F, std::vector<vector<Po
         x=iter->x;
         y=iter->y;
         angle=(x+y)*b % a;
-        for(i=0;i<kG;++i)
+        for(i=0;i<KG;++i)
         {
             bool f1(false),f2(false);
             
