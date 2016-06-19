@@ -11,6 +11,11 @@ using namespace cv;
 #define  KG      4     //  for sample gathering, each unknown p gathers at most kG forground and background samples
 
 
+#define  IS_BACKGROUND(x)  (x == 0)
+#define  IS_FOREGROUND(x)  (x == 255)
+#define  IS_UNKNOWN(x)   (!(IS_BACKGROUND(x) || IS_FOREGROUND(x)))
+
+
 #pragma mark Public functions
 
 SharedMatting::SharedMatting()
@@ -97,30 +102,25 @@ void SharedMatting::expandKnown()
 {
     vector<struct labelPoint> vp;
     int kc2 = KC * KC;
-    vp.clear();
-    
-    
-    for (int i = 0; i < height; ++i)
-    {
-        for (int j = 0; j < width; ++j)
-        {
-            if (m_ppTriData[i][j] != 0 && m_ppTriData[i][j] != 255)
-            {
+
+    for (int i = 0; i < height; ++i) {
+        for (int j = 0; j < width; ++j) {
+            if ( IS_UNKNOWN(m_ppTriData[i][j]) ) {
                 int label = -1;
-                bool flag = false;
+                bool bLabel = false;
                 int pb = data[i * step + j * channels];
                 int pg = data[i * step + j * channels + 1];
                 int pr = data[i * step + j * channels + 2];
                 Scalar p = Scalar(pb, pg, pr);
                 
-                for (int k = 0; (k <= KI) && !flag; ++k)
+                for (int k = 0; (k <= KI) && !bLabel; ++k)
                 {
                     int k1 = max(0, i - k);
                     int k2 = min(i + k, height - 1);
                     int l1 = max(0, j - k);
                     int l2 = min(j + k, width - 1);
                     
-                    for (int l = k1; (l <= k2) && !flag; ++l)
+                    for (int l = k1; (l <= k2) && !bLabel; ++l)
                     {
                         double dis;
                         double gray;
@@ -142,11 +142,11 @@ void SharedMatting::expandKnown()
                             double distanceColor = colorDistance2(p, q);
                             if (distanceColor <= kc2)
                             {
-                                flag = true;
+                                bLabel = true;
                                 label = gray;
                             }
                         }
-                        if (flag)
+                        if (bLabel)
                         {
                             break;
                         }
@@ -167,13 +167,13 @@ void SharedMatting::expandKnown()
                             double distanceColor = colorDistance2(p, q);
                             if (distanceColor <= kc2)
                             {
-                                flag = true;
+                                bLabel = true;
                                 label = gray;
                             }
                         }
                     }
                     
-                    for (int l = l1; (l <= l2) && !flag; ++l)
+                    for (int l = l1; (l <= l2) && !bLabel; ++l)
                     {
                         double dis;
                         double gray;
@@ -194,7 +194,7 @@ void SharedMatting::expandKnown()
                             double distanceColor = colorDistance2(p, q);
                             if (distanceColor <= kc2)
                             {
-                                flag = true;
+                                bLabel = true;
                                 label = gray;
                             }
                         }
@@ -214,7 +214,7 @@ void SharedMatting::expandKnown()
                             double distanceColor = colorDistance2(p, q);
                             if (distanceColor <= kc2)
                             {
-                                flag = true;
+                                bLabel = true;
                                 label = gray;
                             }
                         }
