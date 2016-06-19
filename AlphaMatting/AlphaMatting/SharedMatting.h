@@ -78,7 +78,7 @@ private:
     cv::Mat pImg;
     cv::Mat matte;
     
-    vector<cv::Point> uT;
+    vector<cv::Point> unknownSet;
     vector<struct Tuple> tuples;
     vector<struct Ftuple> ftuples;
     

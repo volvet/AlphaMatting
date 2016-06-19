@@ -22,16 +22,15 @@ using namespace cv;
 
 SharedMatting::SharedMatting()
 {
-    uT.clear();
+    unknownSet.clear();
     tuples.clear();
-    
 }
 
 SharedMatting::~SharedMatting()
 {
     pImg.release();
     matte.release();
-    uT.clear();
+    unknownSet.clear();
     tuples.clear();
     ftuples.clear();
     
@@ -201,7 +200,7 @@ void SharedMatting::expandKnown()
                     Point lp;
                     lp.x = i;
                     lp.y = j;
-                    uT.push_back(lp);
+                    unknownSet.push_back(lp);
                 }
             }
         }
@@ -526,7 +525,7 @@ void SharedMatting::sample(std::vector<vector<Point> > &foregroundSamples, std::
     backgroundSamples.clear();
     w=pImg.cols;
     h=pImg.rows;
-    for(iter=uT.begin();iter!=uT.end();++iter) {
+    for(iter=unknownSet.begin();iter!=unknownSet.end();++iter) {
         vector<Point> fPts,bPts;
         
         x=iter->x;
@@ -583,12 +582,12 @@ void SharedMatting::gathering()
     sample(foregroundSamples, backgroundSamples);
     
     int index = 0;
-    size_t size = uT.size();
+    size_t size = unknownSet.size();
     
     for (int m = 0; m < size; ++m)
     {
-        int i = uT[m].x;
-        int j = uT[m].y;
+        int i = unknownSet[m].x;
+        int j = unknownSet[m].y;
         
         double pfp = pfP(Point(i, j), foregroundSamples[m], backgroundSamples[m]);
         double gmin = 1.0e10;
@@ -676,7 +675,7 @@ void SharedMatting::refineSample()
         }
     }
     vector<Point>::iterator it;
-    for (it = uT.begin(); it != uT.end(); ++it)
+    for (it = unknownSet.begin(); it != unknownSet.end(); ++it)
     {
         int xi = it->x;
         int yj = it->y;
@@ -830,7 +829,7 @@ void SharedMatting::localSmooth()
     vector<Point>::iterator it;
     double sig2 = 100.0 / (9 * 3.1415926);
     double r = 3 * sqrt(sig2);
-    for (it = uT.begin(); it != uT.end(); ++it)
+    for (it = unknownSet.begin(); it != unknownSet.end(); ++it)
     {
         int xi = it->x;
         int yj = it->y;
