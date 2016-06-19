@@ -511,7 +511,7 @@ void SharedMatting::sample(Point p, std::vector<Point> &f, std::vector<Point> &b
     
 }
 
-void SharedMatting::sample(std::vector<vector<Point> > &F, std::vector<vector<Point> > &B)
+void SharedMatting::sample(std::vector<vector<Point> > &foregroundSamples, std::vector<vector<Point> > &backgroundSamples)
 {
     int   a,b,i;
     int   x,y,p,q;
@@ -522,8 +522,8 @@ void SharedMatting::sample(std::vector<vector<Point> > &F, std::vector<vector<Po
     
     a=360/KG;
     b=1.7f*a/9;
-    F.clear();
-    B.clear();
+    foregroundSamples.clear();
+    backgroundSamples.clear();
     w=pImg.cols;
     h=pImg.rows;
     for(iter=uT.begin();iter!=uT.end();++iter) {
@@ -548,12 +548,12 @@ void SharedMatting::sample(std::vector<vector<Point> > &F, std::vector<vector<Po
                     break;
                 
                 gray=m_ppTriData[p][q];
-                if(!f1 && gray<50) {
+                if(!f1 &&  IS_BACKGROUND(gray)) {
                     Point pt = Point(p, q);
                     bPts.push_back(pt);
                     f1=true;
                 } else {
-                    if(!f2 && gray>200) {
+                    if(!f2 && IS_FOREGROUND(gray)) {
                         Point pt = Point(p, q);
                         fPts.push_back(pt);
                         f2=true;
@@ -564,8 +564,8 @@ void SharedMatting::sample(std::vector<vector<Point> > &F, std::vector<vector<Po
             }
         }
         
-        F.push_back(fPts);
-        B.push_back(bPts);
+        foregroundSamples.push_back(fPts);
+        backgroundSamples.push_back(bPts);
     }
 }
 
