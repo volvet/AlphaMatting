@@ -64,7 +64,9 @@ public:
     double aP(int i, int j, double pf, cv::Scalar f, cv::Scalar b);
     double gP(cv::Point p, cv::Point fp, cv::Point bp, double pf);
     double gP(cv::Point p, cv::Point fp, cv::Point bp, double dpf, double pf);
-    double dP(cv::Point s, cv::Point d);
+    
+protected:
+    double pixelDistance(cv::Point s, cv::Point d);
     double sigma2(cv::Point p);
     double distanceColor2(cv::Scalar cs1, cv::Scalar cs2);
     double comalpha(cv::Scalar c, cv::Scalar f, cv::Scalar b);

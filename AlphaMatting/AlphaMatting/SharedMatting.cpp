@@ -124,7 +124,7 @@ void SharedMatting::expandKnown()
                         gray = tri[l][l1];
                         if (gray == 0 || gray == 255)
                         {
-                            dis = dP(Point(i, j), Point(l, l1));
+                            dis = pixelDistance(Point(i, j), Point(l, l1));
                             if (dis > KI)
                             {
                                 continue;
@@ -149,7 +149,7 @@ void SharedMatting::expandKnown()
                         gray = tri[l][l2];
                         if (gray == 0 || gray == 255)
                         {
-                            dis = dP(Point(i, j), Point(l, l2));
+                            dis = pixelDistance(Point(i, j), Point(l, l2));
                             if (dis > KI)
                             {
                                 continue;
@@ -176,7 +176,7 @@ void SharedMatting::expandKnown()
                         gray = tri[k1][l];
                         if (gray == 0 || gray == 255)
                         {
-                            dis = dP(Point(i, j), Point(k1, l));
+                            dis = pixelDistance(Point(i, j), Point(k1, l));
                             if (dis > KI)
                             {
                                 continue;
@@ -196,7 +196,7 @@ void SharedMatting::expandKnown()
                         gray = tri[k2][l];
                         if (gray == 0 || gray == 255)
                         {
-                            dis = dP(Point(i, j), Point(k2, l));
+                            dis = pixelDistance(Point(i, j), Point(k2, l));
                             if (dis > KI)
                             {
                                 continue;
@@ -393,7 +393,7 @@ double SharedMatting::aP(int i, int j, double pf, Scalar f, Scalar b)
     return pf + (1 - 2 * pf) * alpha;
 }
 
-double SharedMatting::dP(Point s, Point d)
+double SharedMatting::pixelDistance(Point s, Point d)
 {
     return sqrt(double((s.x - d.x) * (s.x - d.x) + (s.y - d.y) * (s.y - d.y)));
 }
@@ -413,8 +413,8 @@ double SharedMatting::gP(Point p, Point fp, Point bp, double pf)
     
     double tn = pow(nP(p.x, p.y, f, b), 3);
     double ta = pow(aP(p.x, p.y, pf, f, b), 2);
-    double tf = dP(p, fp);
-    double tb = pow(dP(p, bp), 4);
+    double tf = pixelDistance(p, fp);
+    double tb = pow(pixelDistance(p, bp), 4);
     
     //cout << "tn:" << tn << "ta:" << ta << "tf:" << tf << "tb:" << tb << endl;
     return tn * ta * tf * tb;
@@ -437,7 +437,7 @@ double SharedMatting::gP(Point p, Point fp, Point bp, double dpf, double pf)
     double tn = pow(nP(p.x, p.y, f, b), 3);
     double ta = pow(aP(p.x, p.y, pf, f, b), 2);
     double tf = dpf;
-    double tb = pow(dP(p, bp), 4);
+    double tb = pow(pixelDistance(p, bp), 4);
     
     return tn * ta * tf * tb;
 }
@@ -642,7 +642,7 @@ void SharedMatting::gathering()
         
         for (it1 = F[m].begin(); it1 != F[m].end(); ++it1)
         {
-            double dpf = dP(Point(i, j), *(it1));
+            double dpf = pixelDistance(Point(i, j), *(it1));
             for (it2 = B[m].begin(); it2 < B[m].end(); ++it2)
             {
                 
@@ -907,7 +907,7 @@ void SharedMatting::localSmooth()
                 int indexq = k * width + l;
                 Ftuple qtuple = ftuples[indexq];
                 
-                double d = dP(Point(xi, yj), Point(k, l));
+                double d = pixelDistance(Point(xi, yj), Point(k, l));
                 
                 if (d > r)
                 {
