@@ -14,6 +14,7 @@ using namespace cv;
 #define  IS_BACKGROUND(x)  (x == 0)
 #define  IS_FOREGROUND(x)  (x == 255)
 #define  IS_UNKNOWN(x)   (!(IS_BACKGROUND(x) || IS_FOREGROUND(x)))
+#define  LOAD_RGB_SCALAR(data, pos)    Scalar(data[pos], data[pos+1], data[pos+2])
 
 
 #pragma mark Public functions
@@ -108,12 +109,9 @@ void SharedMatting::expandKnown()
             if ( IS_UNKNOWN(m_ppTriData[i][j]) ) {
                 int label = -1;
                 bool bLabel = false;
-                int pb = data[i * step + j * channels];
-                int pg = data[i * step + j * channels + 1];
-                int pr = data[i * step + j * channels + 2];
-                Scalar p = Scalar(pb, pg, pr);
+                Scalar p = LOAD_RGB_SCALAR(data, i*step+j*channels);
                 
-                for (int k = 0; (k <= KI) && !bLabel; ++k)
+                for (int k = 1; (k <= KI) && !bLabel; ++k)
                 {
                     int k1 = max(0, i - k);
                     int k2 = min(i + k, height - 1);
@@ -134,10 +132,7 @@ void SharedMatting::expandKnown()
                             {
                                 continue;
                             }
-                            int qb = data[l * step + l1 * channels];
-                            int qg = data[l * step + l1 * channels + 1];
-                            int qr = data[l * step + l1 * channels + 2];
-                            Scalar q = Scalar(qb, qg, qr);
+                            Scalar q = LOAD_RGB_SCALAR(data, l*step + l1*channels);
                             
                             double distanceColor = colorDistance2(p, q);
                             if (distanceColor <= kc2)
@@ -159,10 +154,7 @@ void SharedMatting::expandKnown()
                             {
                                 continue;
                             }
-                            int qb = data[l * step + l2 * channels];
-                            int qg = data[l * step + l2 * channels + 1];
-                            int qr = data[l * step + l2 * channels + 2];
-                            Scalar q = Scalar(qb, qg, qr);
+                            Scalar q = LOAD_RGB_SCALAR(data, l*step + l2*channels);
                             
                             double distanceColor = colorDistance2(p, q);
                             if (distanceColor <= kc2)
@@ -186,10 +178,8 @@ void SharedMatting::expandKnown()
                             {
                                 continue;
                             }
-                            int qb = data[k1 * step + l * channels];
-                            int qg = data[k1 * step + l * channels + 1];
-                            int qr = data[k1 * step + l * channels + 2];
-                            Scalar q = Scalar(qb, qg, qr);
+                            
+                            Scalar q = LOAD_RGB_SCALAR(data, k1*step+l*channels);
                             
                             double distanceColor = colorDistance2(p, q);
                             if (distanceColor <= kc2)
@@ -206,10 +196,7 @@ void SharedMatting::expandKnown()
                             {
                                 continue;
                             }
-                            int qb = data[k2 * step + l * channels];
-                            int qg = data[k2 * step + l * channels + 1];
-                            int qr = data[k2 * step + l * channels + 2];
-                            Scalar q = Scalar(qb, qg, qr);
+                            Scalar q = LOAD_RGB_SCALAR(data, k2*step+l*channels);
                             
                             double distanceColor = colorDistance2(p, q);
                             if (distanceColor <= kc2)
