@@ -390,29 +390,6 @@ double SharedMatting::pixelDistance(Point s, Point d)
     return sqrt(double((s.x - d.x) * (s.x - d.x) + (s.y - d.y) * (s.y - d.y)));
 }
 
-double SharedMatting::gP(Point p, Point fp, Point bp, double pf)
-{
-    int bc, gc, rc;
-    bc = data[fp.x * step + fp.y * channels];
-    gc = data[fp.x * step + fp.y * channels + 1];
-    rc = data[fp.x * step + fp.y * channels + 2];
-    Scalar f = Scalar(bc, gc, rc);
-    bc = data[bp.x * step + bp.y * channels];
-    gc = data[bp.x * step + bp.y * channels + 1];
-    rc = data[bp.x * step + bp.y * channels + 2];
-    Scalar b = Scalar(bc, gc, rc);
-    
-    
-    double tn = pow(nP(p.x, p.y, f, b), 3);
-    double ta = pow(aP(p.x, p.y, pf, f, b), 2);
-    double tf = pixelDistance(p, fp);
-    double tb = pow(pixelDistance(p, bp), 4);
-    
-    //cout << "tn:" << tn << "ta:" << ta << "tf:" << tf << "tb:" << tb << endl;
-    return tn * ta * tf * tb;
-    
-}
-
 double SharedMatting::gP(Point p, Point fp, Point bp, double dpf, double pf)
 {
     Scalar f = LOAD_RGB_SCALAR(data, fp.x*step + fp.y*channels);

@@ -65,7 +65,6 @@ private:
     
     
     double aP(int i, int j, double pf, cv::Scalar f, cv::Scalar b);
-    double gP(cv::Point p, cv::Point fp, cv::Point bp, double pf);
     double gP(cv::Point p, cv::Point fp, cv::Point bp, double dpf, double pf);
     
     double energyOfPath(int i1, int j1, int i2, int j2);
