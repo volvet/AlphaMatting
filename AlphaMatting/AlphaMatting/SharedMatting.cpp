@@ -356,7 +356,7 @@ double SharedMatting::eP(int i1, int j1, int i2, int j2)
     return result;
 }
 
-double SharedMatting::pfP(Point p, vector<Point>& f, vector<Point>& b)
+double SharedMatting::probabilityOfForeground(Point p, vector<Point>& f, vector<Point>& b)
 {
     double fmin = 1e10;
     vector<Point>::iterator it;
@@ -564,7 +564,7 @@ void SharedMatting::gathering()
         int i = unknownSet[m].x;
         int j = unknownSet[m].y;
         
-        double pfp = pfP(Point(i, j), foregroundSamples[m], backgroundSamples[m]);
+        double pfp = probabilityOfForeground(Point(i, j), foregroundSamples[m], backgroundSamples[m]);
         double gmin = 1.0e10;
         
         Point tf;
