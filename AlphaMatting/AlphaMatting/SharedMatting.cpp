@@ -96,6 +96,43 @@ void SharedMatting::save(const char * filename)
     imwrite(filename, matte);
 }
 
+void SharedMatting::solveAlpha()
+{
+    clock_t start, finish;
+    //expandKnown()
+    start = clock();
+    cout << "Expanding...";
+    expandKnown();
+    cout << "    over!!!" << endl;
+    finish = clock();
+    cout <<  double(finish - start) / (CLOCKS_PER_SEC * 2.5) << endl;
+    
+    //gathering()
+    start = clock();
+    cout << "Gathering...";
+    gathering();
+    cout << "    over!!!" << endl;
+    finish = clock();
+    cout <<  double(finish - start) / (CLOCKS_PER_SEC * 2.5) << endl;
+    
+    //refineSample()
+    start = clock();
+    cout << "Refining...";
+    refineSample();
+    cout << "    over!!!" << endl;
+    finish = clock();
+    cout <<  double(finish - start) / (CLOCKS_PER_SEC * 2.5) << endl;
+    
+    //localSmooth()
+    start = clock();
+    cout << "LocalSmoothing...";
+    localSmooth();
+    cout << "    over!!!" << endl;
+    finish = clock();
+    cout <<  double(finish - start) / (CLOCKS_PER_SEC * 2.5) << endl;
+    
+    getMatte();
+}
 
 #pragma mark Internal functions
 
@@ -265,9 +302,6 @@ double SharedMatting::nP(int i, int j, Scalar f, Scalar b)
 
 double SharedMatting::eP(int i1, int j1, int i2, int j2)
 {
-    
-    //int flagi = 1, flagj = 1;
-    
     double ci = i2 - i1;
     double cj = j2 - j1;
     double z  = sqrt(ci * ci + cj * cj);
@@ -276,13 +310,9 @@ double SharedMatting::eP(int i1, int j1, int i2, int j2)
     double ej = cj / (z + 0.0000001);
     
     double stepinc = min(1 / (abs(ei) + 1e-10), 1 / (abs(ej) + 1e-10));
-    
     double result = 0;
     
-    int b = data[i1 * step + j1 * channels];
-    int g = data[i1 * step + j1 * channels + 1];
-    int r = data[i1 * step + j1 * channels + 2];
-    Scalar pre = Scalar(b, g, r);
+    Scalar pre = LOAD_RGB_SCALAR(data, i1*step + j1*channels);
     
     int ti = i1;
     int tj = j1;
@@ -296,10 +326,7 @@ double SharedMatting::eP(int i1, int j1, int i2, int j2)
         
         double z = 1;
         
-        int b = data[i * step + j * channels];
-        int g = data[i * step + j * channels + 1];
-        int r = data[i * step + j * channels + 2];
-        Scalar cur = Scalar(b, g, r);
+        Scalar cur = LOAD_RGB_SCALAR(data, i*step + j*channels);
         
         if (ti - i > 0 && tj - j == 0)
         {
@@ -950,42 +977,4 @@ void SharedMatting::getMatte()
             
         }
     }
-}
-//主干方法
-void SharedMatting::solveAlpha()
-{
-    clock_t start, finish;
-    //expandKnown()
-    start = clock();
-    cout << "Expanding...";
-    expandKnown();
-    cout << "    over!!!" << endl;
-    finish = clock();
-    cout <<  double(finish - start) / (CLOCKS_PER_SEC * 2.5) << endl;
-    
-    //gathering()
-    start = clock();
-    cout << "Gathering...";
-    gathering();
-    cout << "    over!!!" << endl;
-    finish = clock();
-    cout <<  double(finish - start) / (CLOCKS_PER_SEC * 2.5) << endl;
-    
-    //refineSample()
-    start = clock();
-    cout << "Refining...";
-    refineSample();
-    cout << "    over!!!" << endl;
-    finish = clock();
-    cout <<  double(finish - start) / (CLOCKS_PER_SEC * 2.5) << endl;
-    
-    //localSmooth()
-    start = clock();
-    cout << "LocalSmoothing...";
-    localSmooth();
-    cout << "    over!!!" << endl;
-    finish = clock();
-    cout <<  double(finish - start) / (CLOCKS_PER_SEC * 2.5) << endl;
-    
-    getMatte();
 }
