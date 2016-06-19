@@ -553,16 +553,9 @@ void SharedMatting::gathering()
         st.flag = -1;
         if (flag)
         {
-            int bc, gc, rc;
-            bc = data[tf.x * step +  tf.y * channels];
-            gc = data[tf.x * step +  tf.y * channels + 1];
-            rc = data[tf.x * step +  tf.y * channels + 2];
             st.flag   = 1;
-            st.f      = Scalar(bc, gc, rc);
-            bc = data[tb.x * step +  tb.y * channels];
-            gc = data[tb.x * step +  tb.y * channels + 1];
-            rc = data[tb.x * step +  tb.y * channels + 2];
-            st.b      = Scalar(bc, gc, rc);
+            st.f      = LOAD_RGB_SCALAR(data, tf.x*step + tf.y*channels);
+            st.b      = LOAD_RGB_SCALAR(data, tb.x*step + tb.y*channels);
             st.sigmaf = sigma2(tf);
             st.sigmab = sigma2(tb);
         }
@@ -571,9 +564,6 @@ void SharedMatting::gathering()
         unknownIndex[i][j] = index;
         ++index;
     }
-    f.clear();
-    b.clear();
-    
 }
 
 void SharedMatting::refineSample()
