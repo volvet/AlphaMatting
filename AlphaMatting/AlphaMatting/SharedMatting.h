@@ -53,10 +53,11 @@ public:
     void localSmooth();
     void solveAlpha();
     void save(const char * filename);
-    void Sample(vector<vector<cv::Point> > &F, vector<vector<cv::Point> > &B);
+    void sample(vector<vector<cv::Point> > &F, vector<vector<cv::Point> > &B);
     void getMatte();
-    void release();
     
+    
+protected:
     double mP(int i, int j, cv::Scalar f, cv::Scalar b);
     double nP(int i, int j, cv::Scalar f, cv::Scalar b);
     double eP(int i1, int j1, int i2, int j2);
@@ -64,8 +65,7 @@ public:
     double aP(int i, int j, double pf, cv::Scalar f, cv::Scalar b);
     double gP(cv::Point p, cv::Point fp, cv::Point bp, double pf);
     double gP(cv::Point p, cv::Point fp, cv::Point bp, double dpf, double pf);
-    
-protected:
+
     double pixelDistance(cv::Point s, cv::Point d);
     double colorDistance2(cv::Scalar cs1, cv::Scalar cs2);
     double sigma2(cv::Point p);

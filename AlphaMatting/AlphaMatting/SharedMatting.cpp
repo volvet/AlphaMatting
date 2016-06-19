@@ -540,7 +540,7 @@ void SharedMatting::sample(Point p, std::vector<Point> &f, std::vector<Point> &b
     
 }
 
-void SharedMatting::Sample(std::vector<vector<Point> > &F, std::vector<vector<Point> > &B)
+void SharedMatting::sample(std::vector<vector<Point> > &F, std::vector<vector<Point> > &B)
 {
     int   a,b,i;
     int   x,y,p,q;
@@ -615,7 +615,7 @@ void SharedMatting::gathering()
     vector<vector<Point> > F,B;
     
     
-    Sample(F, B);
+    sample(F, B);
     
     int index = 0;
     size_t size = uT.size();
