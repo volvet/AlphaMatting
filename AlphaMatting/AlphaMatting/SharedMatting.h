@@ -67,8 +67,8 @@ public:
     
 protected:
     double pixelDistance(cv::Point s, cv::Point d);
+    double colorDistance2(cv::Scalar cs1, cv::Scalar cs2);
     double sigma2(cv::Point p);
-    double distanceColor2(cv::Scalar cs1, cv::Scalar cs2);
     double comalpha(cv::Scalar c, cv::Scalar f, cv::Scalar b);
     
 private:

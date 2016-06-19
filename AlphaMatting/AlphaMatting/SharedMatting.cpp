@@ -134,7 +134,7 @@ void SharedMatting::expandKnown()
                             int qr = data[l * step + l1 * channels + 2];
                             Scalar q = Scalar(qb, qg, qr);
                             
-                            double distanceColor = distanceColor2(p, q);
+                            double distanceColor = colorDistance2(p, q);
                             if (distanceColor <= kc2)
                             {
                                 flag = true;
@@ -159,7 +159,7 @@ void SharedMatting::expandKnown()
                             int qr = data[l * step + l2 * channels + 2];
                             Scalar q = Scalar(qb, qg, qr);
                             
-                            double distanceColor = distanceColor2(p, q);
+                            double distanceColor = colorDistance2(p, q);
                             if (distanceColor <= kc2)
                             {
                                 flag = true;
@@ -186,7 +186,7 @@ void SharedMatting::expandKnown()
                             int qr = data[k1 * step + l * channels + 2];
                             Scalar q = Scalar(qb, qg, qr);
                             
-                            double distanceColor = distanceColor2(p, q);
+                            double distanceColor = colorDistance2(p, q);
                             if (distanceColor <= kc2)
                             {
                                 flag = true;
@@ -206,7 +206,7 @@ void SharedMatting::expandKnown()
                             int qr = data[k2 * step + l * channels + 2];
                             Scalar q = Scalar(qb, qg, qr);
                             
-                            double distanceColor = distanceColor2(p, q);
+                            double distanceColor = colorDistance2(p, q);
                             if (distanceColor <= kc2)
                             {
                                 flag = true;
@@ -469,7 +469,7 @@ double SharedMatting::sigma2(Point p)
             gc = data[i * step + j * channels + 1];
             rc = data[i * step + j * channels + 2];
             Scalar temp = Scalar(bc, gc, rc);
-            result += distanceColor2(pc, temp);
+            result += colorDistance2(pc, temp);
             ++num;
         }
     }
@@ -478,7 +478,7 @@ double SharedMatting::sigma2(Point p)
     
 }
 
-double SharedMatting::distanceColor2(Scalar cs1, Scalar cs2)
+double SharedMatting::colorDistance2(Scalar cs1, Scalar cs2)
 {
     return (cs1.val[0] - cs2.val[0]) * (cs1.val[0] - cs2.val[0]) +
     (cs1.val[1] - cs2.val[1]) * (cs1.val[1] - cs2.val[1]) +
@@ -833,8 +833,8 @@ void SharedMatting::refineSample()
         g = data[xi * step +  yj * channels + 1];
         r = data[xi * step +  yj * channels + 2];
         Scalar pc = Scalar(b, g, r);
-        double   df = distanceColor2(pc, fc);
-        double   db = distanceColor2(pc, bc);
+        double   df = colorDistance2(pc, fc);
+        double   db = colorDistance2(pc, bc);
         Scalar tf = fc;
         Scalar tb = bc;
         
@@ -937,7 +937,7 @@ void SharedMatting::localSmooth()
                 
                 double wfb = qtuple.confidence * qtuple.alphar * (1 - qtuple.alphar);
                 wfbsundown += wfb;
-                wfbsumup   += wfb * sqrt(distanceColor2(qtuple.f, qtuple.b));
+                wfbsumup   += wfb * sqrt(colorDistance2(qtuple.f, qtuple.b));
                 
                 double delta = 0;
                 double wa;
@@ -974,7 +974,7 @@ void SharedMatting::localSmooth()
         //double tempalpha = comalpha(cp, fp, bp);
         dfb  = wfbsumup / (wfbsundown + 1e-200);
         
-        conp = min(1.0, sqrt(distanceColor2(fp, bp)) / dfb) * exp(-10 * mP(xi, yj, fp, bp));
+        conp = min(1.0, sqrt(colorDistance2(fp, bp)) / dfb) * exp(-10 * mP(xi, yj, fp, bp));
         alp  = wasumup / (wasumdown + 1e-200);
         
         double alpha_t = conp * comalpha(cp, fp, bp) + (1 - conp) * max(0.0, min(alp, 1.0));
