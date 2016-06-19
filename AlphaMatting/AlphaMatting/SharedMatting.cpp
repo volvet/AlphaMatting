@@ -13,7 +13,8 @@ using namespace cv;
 
 #define  IS_BACKGROUND(x)  (x == 0)
 #define  IS_FOREGROUND(x)  (x == 255)
-#define  IS_UNKNOWN(x)   (!(IS_BACKGROUND(x) || IS_FOREGROUND(x)))
+#define  IS_KNOWN(x)       (IS_BACKGROUND(x) || IS_FOREGROUND(x))
+#define  IS_UNKNOWN(x)     (!IS_KNOWN(x))
 #define  LOAD_RGB_SCALAR(data, pos)    Scalar(data[pos], data[pos+1], data[pos+2])
 
 
@@ -111,118 +112,97 @@ void SharedMatting::expandKnown()
                 bool bLabel = false;
                 Scalar p = LOAD_RGB_SCALAR(data, i*step+j*channels);
                 
-                for (int k = 1; (k <= KI) && !bLabel; ++k)
-                {
+                for (int k = 1; (k <= KI) && !bLabel; ++k) {
                     int k1 = max(0, i - k);
                     int k2 = min(i + k, height - 1);
                     int l1 = max(0, j - k);
                     int l2 = min(j + k, width - 1);
                     
-                    for (int l = k1; (l <= k2) && !bLabel; ++l)
-                    {
+                    for (int l = k1; (l <= k2) && !bLabel; ++l) {
                         double dis;
                         double gray;
                         
-                        
                         gray = m_ppTriData[l][l1];
-                        if (gray == 0 || gray == 255)
-                        {
+                        if (IS_KNOWN(gray)) {
                             dis = pixelDistance(Point(i, j), Point(l, l1));
-                            if (dis > KI)
-                            {
+                            if (dis > KI) {
                                 continue;
                             }
                             Scalar q = LOAD_RGB_SCALAR(data, l*step + l1*channels);
                             
                             double distanceColor = colorDistance2(p, q);
-                            if (distanceColor <= kc2)
-                            {
+                            if (distanceColor <= kc2) {
                                 bLabel = true;
                                 label = gray;
                             }
                         }
-                        if (bLabel)
-                        {
+                        if (bLabel) {
                             break;
                         }
                         
                         gray = m_ppTriData[l][l2];
-                        if (gray == 0 || gray == 255)
-                        {
+                        if (IS_KNOWN(gray)) {
                             dis = pixelDistance(Point(i, j), Point(l, l2));
-                            if (dis > KI)
-                            {
+                            if (dis > KI) {
                                 continue;
                             }
                             Scalar q = LOAD_RGB_SCALAR(data, l*step + l2*channels);
                             
                             double distanceColor = colorDistance2(p, q);
-                            if (distanceColor <= kc2)
-                            {
+                            if (distanceColor <= kc2) {
                                 bLabel = true;
                                 label = gray;
                             }
                         }
                     }
                     
-                    for (int l = l1; (l <= l2) && !bLabel; ++l)
-                    {
+                    for (int l = l1; (l <= l2) && !bLabel; ++l) {
                         double dis;
                         double gray;
                         
                         gray = m_ppTriData[k1][l];
-                        if (gray == 0 || gray == 255)
-                        {
+                        if (IS_KNOWN(gray)) {
                             dis = pixelDistance(Point(i, j), Point(k1, l));
-                            if (dis > KI)
-                            {
+                            if (dis > KI) {
                                 continue;
                             }
                             
                             Scalar q = LOAD_RGB_SCALAR(data, k1*step+l*channels);
                             
                             double distanceColor = colorDistance2(p, q);
-                            if (distanceColor <= kc2)
-                            {
+                            if (distanceColor <= kc2) {
                                 bLabel = true;
                                 label = gray;
                             }
                         }
                         gray = m_ppTriData[k2][l];
-                        if (gray == 0 || gray == 255)
-                        {
+                        if (IS_KNOWN(gray)) {
                             dis = pixelDistance(Point(i, j), Point(k2, l));
-                            if (dis > KI)
-                            {
+                            if (dis > KI) {
                                 continue;
                             }
                             Scalar q = LOAD_RGB_SCALAR(data, k2*step+l*channels);
                             
                             double distanceColor = colorDistance2(p, q);
-                            if (distanceColor <= kc2)
-                            {
+                            if (distanceColor <= kc2) {
                                 bLabel = true;
                                 label = gray;
                             }
                         }
                     }
                 }
-                if (label != -1)
-                {
+                if (label != -1) {
                     struct labelPoint lp;
                     lp.x = i;
                     lp.y = j;
                     lp.label = label;
                     vp.push_back(lp);
-                }
-                else
-                {
+                } else {
                     Point lp;
                     lp.x = i;
                     lp.y = j;
                     uT.push_back(lp);
                 }
-                
             }
         }
     }
@@ -235,7 +215,6 @@ void SharedMatting::expandKnown()
         int label = it->label;
         m_ppTriData[ti][tj] = label;
     }
-    vp.clear();
 }
 
 double SharedMatting::comalpha(Scalar c, Scalar f, Scalar b)
