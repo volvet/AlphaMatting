@@ -61,11 +61,11 @@ protected:
     
 private:
     double chromaticDistortion(int i, int j, cv::Scalar f, cv::Scalar b);
-    double nP(int i, int j, cv::Scalar f, cv::Scalar b);
+    double neighborhoodAffinity(int i, int j, cv::Scalar f, cv::Scalar b);
     
     
     double aP(int i, int j, double pf, cv::Scalar f, cv::Scalar b);
-    double gP(cv::Point p, cv::Point fp, cv::Point bp, double distance, double pf);
+    double gP(cv::Point p, cv::Point fp, cv::Point bp, double distance, double probability);
     
     double energyOfPath(int i1, int j1, int i2, int j2);
     double probabilityOfForeground(cv::Point p, vector<cv::Point>& f, vector<cv::Point>& b);

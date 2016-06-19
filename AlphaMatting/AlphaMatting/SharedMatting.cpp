@@ -9,6 +9,9 @@ using namespace cv;
 #define  KI      10    //  D_IMAGE,  for expansion of known region
 #define  KC      5.0   //  D_COLOR,  for expansion of known region
 #define  KG      4     //  for sample gathering, each unknown p gathers at most kG forground and background samples
+#define  EN      3
+#define  EA      2
+#define  EB      4
 
 
 #define  IS_BACKGROUND(x)  (x == 0)
@@ -279,7 +282,7 @@ double SharedMatting::chromaticDistortion(int i, int j, Scalar f, Scalar b)
     return result / 255.0;
 }
 
-double SharedMatting::nP(int i, int j, Scalar f, Scalar b)
+double SharedMatting::neighborhoodAffinity(int i, int j, Scalar f, Scalar b)
 {
     int i1 = max(0, i - 1);
     int i2 = min(i + 1, height - 1);
@@ -387,15 +390,15 @@ double SharedMatting::pixelDistance(Point s, Point d)
     return sqrt(double((s.x - d.x) * (s.x - d.x) + (s.y - d.y) * (s.y - d.y)));
 }
 
-double SharedMatting::gP(Point p, Point fp, Point bp, double distance, double pf)
+double SharedMatting::gP(Point p, Point fp, Point bp, double distance, double probability)
 {
     Scalar f = LOAD_RGB_SCALAR(data, fp.x*step + fp.y*channels);
     Scalar b = LOAD_RGB_SCALAR(data, bp.x*step + bp.y*channels);
     
-    double tn = pow(nP(p.x, p.y, f, b), 3);
-    double ta = pow(aP(p.x, p.y, pf, f, b), 2);
+    double tn = pow(neighborhoodAffinity(p.x, p.y, f, b), EN);
+    double ta = pow(aP(p.x, p.y, probability, f, b), EA);
     double tf = distance;
-    double tb = pow(pixelDistance(p, bp), 4);
+    double tb = pow(pixelDistance(p, bp), EB);
     
     return tn * ta * tf * tb;
 }
@@ -521,7 +524,7 @@ void SharedMatting::gathering()
         int i = unknownSet[m].x;
         int j = unknownSet[m].y;
         
-        double pfp = probabilityOfForeground(Point(i, j), foregroundSamples[m], backgroundSamples[m]);
+        double probability = probabilityOfForeground(Point(i, j), foregroundSamples[m], backgroundSamples[m]);
         double gmin = 1.0e10;
         
         Point tf;
@@ -535,7 +538,7 @@ void SharedMatting::gathering()
             for (it2 = backgroundSamples[m].begin(); it2 < backgroundSamples[m].end(); ++it2)
             {
                 
-                double gp = gP(Point(i, j), *(it1), *(it2), distance, pfp);
+                double gp = gP(Point(i, j), *(it1), *(it2), distance, probability);
                 if (gp < gmin)
                 {
                     gmin = gp;
