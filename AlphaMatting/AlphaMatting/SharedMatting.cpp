@@ -99,8 +99,9 @@ void SharedMatting::save(const char * filename)
 void SharedMatting::solveAlpha()
 {
     clock_t start, finish;
+    clock_t begin, end;
     //expandKnown()
-    start = clock();
+    begin = start = clock();
     cout << "Expanding...";
     expandKnown();
     cout << "    over!!!" << endl;
@@ -128,8 +129,10 @@ void SharedMatting::solveAlpha()
     cout << "LocalSmoothing...";
     localSmooth();
     cout << "    over!!!" << endl;
-    finish = clock();
+    end = finish = clock();
     cout <<  double(finish - start) / (CLOCKS_PER_SEC * 2.5) << endl;
+    
+    cout << "Total: " << double(end - begin)/(CLOCKS_PER_SEC*2.5) <<endl;
     
     getMatte();
 }
@@ -480,61 +483,6 @@ double SharedMatting::colorDistance2(Scalar cs1, Scalar cs2)
     return (cs1.val[0] - cs2.val[0]) * (cs1.val[0] - cs2.val[0]) +
     (cs1.val[1] - cs2.val[1]) * (cs1.val[1] - cs2.val[1]) +
     (cs1.val[2] - cs2.val[2]) * (cs1.val[2] - cs2.val[2]);
-}
-
-void SharedMatting::sample(Point p, std::vector<Point> &f, std::vector<Point> &b)
-{
-    int i = p.x;
-    int j = p.y;
-    
-    double inc   = 360.0 / KG;
-    //cout << inc << endl;
-    double ca    = inc / 9;
-    double angle = (i % 3 * 3 + j % 9) * ca;
-    for (int k = 0; k  < KG; ++k)
-    {
-        bool flagf = false;
-        bool flagb = false;
-        
-        double z  = (angle + k * inc) / 180 * 3.1415926;
-        double ei = sin(z);
-        double ej = cos(z);
-        
-        double step = min(1.0 / (abs(ei) + 1e-10), 1.0 / (abs(ej) + 1e-10));
-        
-        for (double t = 1; ;t += step)
-        {
-            int ti = int(i + ei * t + 0.5);
-            int tj = int(j + ej * t + 0.5);
-            
-            
-            if(ti >= height || ti < 0 || tj >= width || tj < 0)
-            {
-                break;
-            }
-            int gray = m_ppTriData[ti][tj];
-            
-            if (!flagf && gray == 255)
-            {
-                Point tp = Point(ti, tj);
-                f.push_back(tp);
-                flagf = true;
-            }
-            else if (!flagb && gray == 0)
-            {
-                Point tp = Point(ti, tj);
-                b.push_back(tp);
-                flagb = true;
-            }
-            if (flagf && flagb)
-            {
-                break;
-            }
-            
-        }
-        
-    }
-    
 }
 
 void SharedMatting::sample(std::vector<vector<Point> > &foregroundSamples, std::vector<vector<Point> > &backgroundSamples)

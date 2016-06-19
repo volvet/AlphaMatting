@@ -52,7 +52,6 @@ public:
     
 protected:
     void expandKnown();
-    void sample(cv::Point p, vector<cv::Point>& f, vector<cv::Point>& b);
     void gathering();
     void refineSample();
     void localSmooth();
