@@ -76,7 +76,6 @@ protected:
     
 private:
     cv::Mat pImg;
-    cv::Mat trimap;
     cv::Mat matte;
     
     vector<cv::Point> uT;
@@ -86,7 +85,7 @@ private:
     int height;
     int width;
     int ** unknownIndex;//Unknown的索引信息；
-    int ** tri;
+    int ** m_ppTriData;
     int ** alpha;
     
     size_t step;

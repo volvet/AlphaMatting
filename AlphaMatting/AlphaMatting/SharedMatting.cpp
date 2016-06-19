@@ -11,18 +11,18 @@ using namespace cv;
 #define  KG      4     //  for sample gathering, each unknown p gathers at most kG forground and background samples
 
 
-//构造函数
+#pragma mark Public functions
+
 SharedMatting::SharedMatting()
 {
     uT.clear();
     tuples.clear();
     
 }
-//析构函数
+
 SharedMatting::~SharedMatting()
 {
     pImg.release();
-    trimap.release();
     matte.release();
     uT.clear();
     tuples.clear();
@@ -30,17 +30,15 @@ SharedMatting::~SharedMatting()
     
     for (int i = 0; i < height; ++i)
     {
-        delete[] tri[i];
+        delete[] m_ppTriData[i];
         delete[] unknownIndex[i];
         delete[] alpha[i];
     }
-    delete[] tri;
+    delete[] m_ppTriData;
     delete[] unknownIndex;
     delete[] alpha;
 }
 
-
-//载入图像
 void SharedMatting::loadImage(const char * filename)
 {
     pImg = imread(filename);
@@ -55,12 +53,12 @@ void SharedMatting::loadImage(const char * filename)
     channels   = pImg.channels();
     data       = (uchar *)pImg.data;
     unknownIndex  = new int*[height];
-    tri           = new int*[height];
+    m_ppTriData           = new int*[height];
     alpha         = new int*[height];
     for(int i = 0; i < height; ++i)
     {
         unknownIndex[i] = new int[width];
-        tri[i]          = new int[width];
+        m_ppTriData[i]          = new int[width];
         alpha[i]        = new int[width];
     }
     
@@ -71,36 +69,43 @@ void SharedMatting::loadImage(const char * filename)
 //  Trimap value: 0 - background, 255 - foreground,  others(128) - unknown.
 void SharedMatting::loadTrimap(const char * filename)
 {
-    trimap = imread(filename);
-    if (!trimap.data)
-    {
+    cv::Mat trimap = imread(filename);
+    if (!trimap.data) {
         cout << "Loading Trimap Failed!" << endl;
         exit(-1);
     }
+    uchar * d   = (uchar *)trimap.data;
+    
+    for (int i = 0; i < height; ++i) {
+        for (int j = 0; j < width; ++j) {
+            m_ppTriData[i][j] = d[i * step + j * channels];
+        }
+    }
+
+    trimap.release();
 }
+
+void SharedMatting::save(const char * filename)
+{
+    imwrite(filename, matte);
+}
+
+
+#pragma mark Internal functions
 
 void SharedMatting::expandKnown()
 {
     vector<struct labelPoint> vp;
     int kc2 = KC * KC;
     vp.clear();
-    uchar * d   = (uchar *)trimap.data;
-    for (int i = 0; i < height; ++i)
-    {
-        for (int j = 0; j < width; ++j)
-        {
-            tri[i][j] = d[i * step + j * channels];
-        }
-    }
+    
     
     for (int i = 0; i < height; ++i)
     {
         for (int j = 0; j < width; ++j)
         {
-            
-            if (tri[i][j] != 0 && tri[i][j] != 255)
+            if (m_ppTriData[i][j] != 0 && m_ppTriData[i][j] != 255)
             {
-                
                 int label = -1;
                 bool flag = false;
                 int pb = data[i * step + j * channels];
@@ -121,7 +126,7 @@ void SharedMatting::expandKnown()
                         double gray;
                         
                         
-                        gray = tri[l][l1];
+                        gray = m_ppTriData[l][l1];
                         if (gray == 0 || gray == 255)
                         {
                             dis = pixelDistance(Point(i, j), Point(l, l1));
@@ -146,7 +151,7 @@ void SharedMatting::expandKnown()
                             break;
                         }
                         
-                        gray = tri[l][l2];
+                        gray = m_ppTriData[l][l2];
                         if (gray == 0 || gray == 255)
                         {
                             dis = pixelDistance(Point(i, j), Point(l, l2));
@@ -173,7 +178,7 @@ void SharedMatting::expandKnown()
                         double dis;
                         double gray;
                         
-                        gray = tri[k1][l];
+                        gray = m_ppTriData[k1][l];
                         if (gray == 0 || gray == 255)
                         {
                             dis = pixelDistance(Point(i, j), Point(k1, l));
@@ -193,7 +198,7 @@ void SharedMatting::expandKnown()
                                 label = gray;
                             }
                         }
-                        gray = tri[k2][l];
+                        gray = m_ppTriData[k2][l];
                         if (gray == 0 || gray == 255)
                         {
                             dis = pixelDistance(Point(i, j), Point(k2, l));
@@ -241,7 +246,7 @@ void SharedMatting::expandKnown()
         int ti = it->x;
         int tj = it->y;
         int label = it->label;
-        tri[ti][tj] = label;
+        m_ppTriData[ti][tj] = label;
     }
     vp.clear();
 }
@@ -515,7 +520,7 @@ void SharedMatting::sample(Point p, std::vector<Point> &f, std::vector<Point> &b
             {
                 break;
             }
-            int gray = tri[ti][tj];
+            int gray = m_ppTriData[ti][tj];
             
             if (!flagf && gray == 255)
             {
@@ -579,7 +584,7 @@ void SharedMatting::sample(std::vector<vector<Point> > &F, std::vector<vector<Po
                 if(p<0 || p>=h || q<0 || q>=w)
                     break;
                 
-                gray=tri[p][q];
+                gray=m_ppTriData[p][q];
                 if(!f1 && gray<50)
                 {
                     Point pt = Point(p, q);
@@ -697,7 +702,7 @@ void SharedMatting::refineSample()
             r = data[i * step +  j * channels + 2];
             Scalar c = Scalar(b, g, r);
             int indexf = i * width + j;
-            int gray = tri[i][j];
+            int gray = m_ppTriData[i][j];
             if (gray == 0 )
             {
                 ftuples[indexf].f = c;
@@ -734,7 +739,7 @@ void SharedMatting::refineSample()
         {
             for (int l = j1; l <= j2; ++l)
             {
-                int temp = tri[k][l];
+                int temp = m_ppTriData[k][l];
                 
                 if (temp == 0 || temp == 255)
                 {
@@ -864,13 +869,7 @@ void SharedMatting::refineSample()
         ftuples[index].alphar = max(0.0, min(1.0,comalpha(pc, fc, bc)));
         //cvSet2D(matte, xi, yj, ScalarAll(ftuples[index].alphar * 255));
     }
-    /*cvNamedWindow("1");
-     cvShowImage("1", matte);*/
-    /*cvNamedWindow("2");
-     cvShowImage("2", trimap);*/
-    /*cvWaitKey(0);*/
     tuples.clear();
-    
 }
 
 void SharedMatting::localSmooth()
@@ -941,7 +940,7 @@ void SharedMatting::localSmooth()
                 
                 double delta = 0;
                 double wa;
-                if (tri[k][l] == 0 || tri[k][l] == 255)
+                if (m_ppTriData[k][l] == 0 || m_ppTriData[k][l] == 255)
                 {
                     delta = 1;
                 }
@@ -983,11 +982,7 @@ void SharedMatting::localSmooth()
     }
     ftuples.clear();
 }
-//存储图像
-void SharedMatting::save(const char * filename)
-{
-    imwrite(filename, matte);
-}
+
 
 void SharedMatting::getMatte()
 {
