@@ -562,34 +562,24 @@ void SharedMatting::gathering()
 void SharedMatting::refineSample()
 {
     ftuples.resize(width * height + 1);
-    for (int i = 0; i < height; ++i)
-    {
-        for (int j = 0; j < width; ++j)
-        {
-            int b, g, r;
-            b = data[i * step +  j* channels];
-            g = data[i * step +  j * channels + 1];
-            r = data[i * step +  j * channels + 2];
-            Scalar c = Scalar(b, g, r);
+    for (int i = 0; i < height; ++i) {
+        for (int j = 0; j < width; ++j) {
+            Scalar c = LOAD_RGB_SCALAR(data, i*step + j*channels);
             int indexf = i * width + j;
             int gray = m_ppTriData[i][j];
-            if (gray == 0 )
-            {
+            if ( IS_BACKGROUND(gray) ) {
                 ftuples[indexf].f = c;
                 ftuples[indexf].b = c;
                 ftuples[indexf].alphar = 0;
                 ftuples[indexf].confidence = 1;
                 alpha[i][j] = 0;
-            }
-            else if (gray == 255)
-            {
+            } else if ( IS_FOREGROUND(gray) ) {
                 ftuples[indexf].f = c;
                 ftuples[indexf].b = c;
                 ftuples[indexf].alphar = 1;
                 ftuples[indexf].confidence = 1;
                 alpha[i][j] = 255;
             }
-            
         }
     }
     vector<Point>::iterator it;
@@ -703,11 +693,7 @@ void SharedMatting::refineSample()
         
         Scalar fc = Scalar(fb, fg, fr);
         Scalar bc = Scalar(bb, bg, br);
-        int b, g, r;
-        b = data[xi * step +  yj* channels];
-        g = data[xi * step +  yj * channels + 1];
-        r = data[xi * step +  yj * channels + 2];
-        Scalar pc = Scalar(b, g, r);
+        Scalar pc = LOAD_RGB_SCALAR(data, xi*step + yj*channels);
         double   df = colorDistance2(pc, fc);
         double   db = colorDistance2(pc, bc);
         Scalar tf = fc;
@@ -737,7 +723,6 @@ void SharedMatting::refineSample()
         
         
         ftuples[index].alphar = max(0.0, min(1.0,comalpha(pc, fc, bc)));
-        //cvSet2D(matte, xi, yj, ScalarAll(ftuples[index].alphar * 255));
     }
     tuples.clear();
 }
